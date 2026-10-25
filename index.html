@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0b1020" />
-    <title>Moonzone — Track the Moon Tonight</title>
+    <meta name="theme-color" content="#141414" />
+    <title>Moonzone | Clothing for after dark</title>
     <meta
       name="description"
-      content="Moonzone shows the current moon phase, illumination, and upcoming lunar events for any date."
+      content="Moonzone is an independent clothing label making heavyweight essentials for late nights. Explore Drop 01."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,80 +18,143 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <canvas id="stars" aria-hidden="true"></canvas>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
-      <a href="#" class="logo">Moonzone</a>
-      <nav aria-label="Main">
-        <ul>
-          <li><a href="#tonight">Tonight</a></li>
-          <li><a href="#upcoming">Upcoming</a></li>
-          <li><a href="#facts">Facts</a></li>
-        </ul>
-      </nav>
+      <div class="container header-inner">
+        <a href="#" class="logo" aria-label="Moonzone home">
+          <span class="logo-mark" aria-hidden="true"></span>
+          Moonzone
+        </a>
+        <button
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="site-nav"
+        >
+          <span class="sr-only">Toggle menu</span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="Main">
+          <a href="#collection">Collection</a>
+          <a href="#drop">Next drop</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
     </header>
 
-    <main>
-      <section id="tonight" class="hero" aria-labelledby="phase-name">
-        <div class="moon-wrap">
-          <canvas id="moon" width="320" height="320" role="img" aria-label="Moon phase illustration"></canvas>
-        </div>
-
-        <div class="hero-text">
-          <p class="eyebrow" id="date-label">Tonight</p>
-          <h1 id="phase-name">Loading…</h1>
-          <dl class="stats">
-            <div>
-              <dt>Illumination</dt>
-              <dd id="illumination">–</dd>
-            </div>
-            <div>
-              <dt>Moon age</dt>
-              <dd id="age">–</dd>
-            </div>
-            <div>
-              <dt>Trend</dt>
-              <dd id="trend">–</dd>
-            </div>
-          </dl>
-
-          <form id="date-form" class="date-form">
-            <label for="date-input">Check another date</label>
-            <div class="date-row">
-              <input type="date" id="date-input" name="date" />
-              <button type="button" id="today-btn" class="btn-ghost">Today</button>
-            </div>
-          </form>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <img
+          class="hero-image"
+          src="images/hero.png"
+          alt="Model in a black Moonzone hoodie standing on a rooftop under a full moon"
+        />
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <div class="container hero-content">
+          <p class="eyebrow">Drop 01 &mdash; Night Shift</p>
+          <h1 id="hero-title">Clothing for after dark.</h1>
+          <p class="hero-copy">
+            Heavyweight essentials made in small runs, built for long nights
+            and the walk home.
+          </p>
+          <a href="#collection" class="button button-light">Shop the drop</a>
         </div>
       </section>
 
-      <section id="upcoming" class="section" aria-labelledby="upcoming-title">
-        <h2 id="upcoming-title">Upcoming phases</h2>
-        <ol id="upcoming-list" class="upcoming"></ol>
+      <section id="collection" class="section" aria-labelledby="collection-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow eyebrow-dark">The collection</p>
+              <h2 id="collection-title">Drop 01</h2>
+            </div>
+            <div class="filters" role="group" aria-label="Filter products">
+              <button class="filter is-active" data-filter="all" aria-pressed="true">All</button>
+              <button class="filter" data-filter="tops" aria-pressed="false">Tops</button>
+              <button class="filter" data-filter="bottoms" aria-pressed="false">Bottoms</button>
+            </div>
+          </div>
+
+          <ul class="product-grid" id="product-grid"></ul>
+        </div>
       </section>
 
-      <section id="facts" class="section" aria-labelledby="facts-title">
-        <h2 id="facts-title">Lunar facts</h2>
-        <div class="facts">
-          <article>
-            <h3>384,400 km</h3>
-            <p>Average distance from Earth. Light covers it in about 1.3 seconds.</p>
-          </article>
-          <article>
-            <h3>29.53 days</h3>
-            <p>One synodic month, the time from one new moon to the next.</p>
-          </article>
-          <article>
-            <h3>3.8 cm / year</h3>
-            <p>How fast the Moon drifts away from Earth because of tidal forces.</p>
-          </article>
+      <section id="drop" class="section section-dark" aria-labelledby="drop-title">
+        <div class="container drop-inner">
+          <div>
+            <p class="eyebrow">Coming next</p>
+            <h2 id="drop-title">Drop 02 lands at the next full moon.</h2>
+            <p class="muted">
+              Every release goes live on a full moon. Small quantities, no
+              restocks.
+            </p>
+          </div>
+          <div class="countdown" aria-live="polite">
+            <p class="countdown-date" id="drop-date"></p>
+            <dl class="countdown-grid">
+              <div><dt>Days</dt><dd id="cd-days">--</dd></div>
+              <div><dt>Hours</dt><dd id="cd-hours">--</dd></div>
+              <div><dt>Mins</dt><dd id="cd-mins">--</dd></div>
+              <div><dt>Secs</dt><dd id="cd-secs">--</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section" aria-labelledby="about-title">
+        <div class="container about-inner">
+          <p class="eyebrow eyebrow-dark">About</p>
+          <h2 id="about-title">Made slowly, worn often.</h2>
+          <div class="about-cols">
+            <p>
+              Moonzone started as a handful of hoodies made for friends who
+              worked night shifts. We still design every piece for the same
+              people: comfortable enough for a 3am drive, sharp enough for
+              wherever it ends up.
+            </p>
+            <ul class="values">
+              <li><strong>400gsm</strong> brushed cotton fleece</li>
+              <li><strong>Small runs</strong> of 200 pieces or fewer</li>
+              <li><strong>Garment dyed</strong> for a lived-in finish</li>
+            </ul>
+          </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>Moonzone. Phases are approximate and calculated in your browser.</p>
+    <footer id="contact" class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <p class="logo logo-footer">
+            <span class="logo-mark" aria-hidden="true"></span>
+            Moonzone
+          </p>
+          <p class="muted">Questions, wholesale or collabs?</p>
+          <a class="footer-email" href="mailto:hello@moonzone.com">hello@moonzone.com</a>
+        </div>
+        <p class="muted small">&copy; <span id="year"></span> Moonzone. All rights reserved.</p>
+      </div>
     </footer>
+
+    <dialog class="quick-view" id="quick-view" aria-labelledby="qv-title">
+      <button class="qv-close" id="qv-close" aria-label="Close">&times;</button>
+      <div class="qv-body">
+        <img id="qv-image" src="" alt="" />
+        <div class="qv-info">
+          <p class="eyebrow eyebrow-dark" id="qv-category"></p>
+          <h3 id="qv-title"></h3>
+          <p class="qv-price" id="qv-price"></p>
+          <p class="muted" id="qv-desc"></p>
+          <fieldset class="sizes">
+            <legend>Size</legend>
+            <div class="size-options" id="qv-sizes"></div>
+          </fieldset>
+          <p class="qv-status" id="qv-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </dialog>
 
     <script src="script.js"></script>
   </body>

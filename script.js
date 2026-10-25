@@ -1,225 +1,204 @@
-"use strict";
-
-const SYNODIC_MONTH = 29.530588853;
-const DAY_MS = 86400000;
-const REFERENCE_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
-
-const PHASES = [
-  { name: "New Moon", max: 0.0339 },
-  { name: "Waxing Crescent", max: 0.2161 },
-  { name: "First Quarter", max: 0.2839 },
-  { name: "Waxing Gibbous", max: 0.4661 },
-  { name: "Full Moon", max: 0.5339 },
-  { name: "Waning Gibbous", max: 0.7161 },
-  { name: "Last Quarter", max: 0.7839 },
-  { name: "Waning Crescent", max: 0.9661 },
-  { name: "New Moon", max: 1 },
+const products = [
+  {
+    id: "night-shift-hoodie",
+    name: "Night Shift Hoodie",
+    category: "tops",
+    price: 120,
+    image: "images/hoodie.png",
+    alt: "Washed black hoodie with a small embroidered crescent moon",
+    description:
+      "400gsm brushed fleece, dropped shoulders and an embroidered crescent on the chest. Garment dyed washed black.",
+    sizes: ["S", "M", "L", "XL"],
+  },
+  {
+    id: "phase-tee",
+    name: "Phase Tee",
+    category: "tops",
+    price: 55,
+    image: "images/tee.png",
+    alt: "Boxy bone white t-shirt with a moon phase print on the back",
+    description:
+      "Boxy 240gsm cotton tee in bone with a moon phase print across the back.",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+  },
+  {
+    id: "orbit-cargo",
+    name: "Orbit Cargo",
+    category: "bottoms",
+    price: 140,
+    image: "images/cargo.png",
+    alt: "Slate grey relaxed fit nylon cargo pants",
+    description:
+      "Relaxed nylon cargos in slate with articulated knees, six pockets and adjustable cuffs.",
+    sizes: ["28", "30", "32", "34", "36"],
+  },
 ];
 
-const KEY_PHASES = [
-  { name: "New Moon", fraction: 0 },
-  { name: "First Quarter", fraction: 0.25 },
-  { name: "Full Moon", fraction: 0.5 },
-  { name: "Last Quarter", fraction: 0.75 },
-];
-
-function getPhaseFraction(date) {
-  const days = (date.getTime() - REFERENCE_NEW_MOON) / DAY_MS;
-  const cycles = days / SYNODIC_MONTH;
-  return cycles - Math.floor(cycles);
-}
-
-function getPhaseName(fraction) {
-  return PHASES.find((phase) => fraction < phase.max).name;
-}
-
-function getIllumination(fraction) {
-  return (1 - Math.cos(2 * Math.PI * fraction)) / 2;
-}
-
-function drawMoon(canvas, fraction) {
-  const ctx = canvas.getContext("2d");
-  const size = canvas.width;
-  const r = size / 2 - 4;
-  const cx = size / 2;
-  const cy = size / 2;
-
-  ctx.clearRect(0, 0, size, size);
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = "#1c2238";
-  ctx.fill();
-
-  const waxing = fraction < 0.5;
-  const side = waxing ? 1 : -1;
-  const terminator = side * Math.cos(2 * Math.PI * fraction);
-  const steps = 90;
-
-  ctx.beginPath();
-  for (let i = 0; i <= steps; i++) {
-    const y = -r + (2 * r * i) / steps;
-    const x = side * Math.sqrt(r * r - y * y);
-    i === 0 ? ctx.moveTo(cx + x, cy + y) : ctx.lineTo(cx + x, cy + y);
-  }
-  for (let i = steps; i >= 0; i--) {
-    const y = -r + (2 * r * i) / steps;
-    const x = terminator * Math.sqrt(r * r - y * y);
-    ctx.lineTo(cx + x, cy + y);
-  }
-  ctx.closePath();
-
-  const glow = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
-  glow.addColorStop(0, "#fbf6e9");
-  glow.addColorStop(1, "#d9d2bf");
-  ctx.fillStyle = glow;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-}
-
-function getUpcomingPhases(date) {
-  const current = getPhaseFraction(date);
-  return KEY_PHASES.map((phase) => {
-    let delta = phase.fraction - current;
-    if (delta <= 0) delta += 1;
-    return {
-      ...phase,
-      date: new Date(date.getTime() + delta * SYNODIC_MONTH * DAY_MS),
-    };
-  }).sort((a, b) => a.date - b.date);
-}
-
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
 });
 
-const longDateFormatter = new Intl.DateTimeFormat(undefined, {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  year: "numeric",
+// Header: solid background once the hero is scrolled past
+const header = document.querySelector(".site-header");
+const updateHeader = () =>
+  header.classList.toggle("is-scrolled", window.scrollY > 40);
+window.addEventListener("scroll", updateHeader, { passive: true });
+updateHeader();
+
+// Mobile nav
+const navToggle = document.querySelector(".nav-toggle");
+const nav = document.getElementById("site-nav");
+
+navToggle.addEventListener("click", () => {
+  const open = nav.classList.toggle("is-open");
+  navToggle.setAttribute("aria-expanded", String(open));
+  header.classList.add("is-scrolled");
 });
 
-function toInputValue(date) {
-  const offset = date.getTimezoneOffset() * 60000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 10);
-}
+nav.addEventListener("click", (event) => {
+  if (event.target.closest("a")) {
+    nav.classList.remove("is-open");
+    navToggle.setAttribute("aria-expanded", "false");
+  }
+});
 
-function render(date, isToday) {
-  const fraction = getPhaseFraction(date);
-  const name = getPhaseName(fraction);
-  const illumination = getIllumination(fraction);
+// Product grid
+const grid = document.getElementById("product-grid");
 
-  const moonCanvas = document.getElementById("moon");
-  drawMoon(moonCanvas, fraction);
-  moonCanvas.setAttribute(
-    "aria-label",
-    `${name}, ${Math.round(illumination * 100)} percent illuminated`
+function renderProducts(filter = "all") {
+  const visible = products.filter(
+    (p) => filter === "all" || p.category === filter
   );
 
-  document.getElementById("date-label").textContent = isToday
-    ? "Tonight"
-    : longDateFormatter.format(date);
-  document.getElementById("phase-name").textContent = name;
-  document.getElementById("illumination").textContent = `${Math.round(illumination * 100)}%`;
-  document.getElementById("age").textContent = `${(fraction * SYNODIC_MONTH).toFixed(1)} days`;
-  document.getElementById("trend").textContent = fraction < 0.5 ? "Waxing" : "Waning";
+  grid.innerHTML = visible
+    .map(
+      (p) => `
+      <li class="product-card reveal">
+        <button type="button" data-id="${p.id}" aria-label="View ${p.name}">
+          <div class="product-media">
+            <img src="${p.image}" alt="${p.alt}" loading="lazy" />
+          </div>
+          <div class="product-meta">
+            <div>
+              <p class="product-name">${p.name}</p>
+              <p class="product-tag">${p.category === "tops" ? "Top" : "Bottom"}</p>
+            </div>
+            <span>${currency.format(p.price)}</span>
+          </div>
+        </button>
+      </li>`
+    )
+    .join("");
 
-  const list = document.getElementById("upcoming-list");
-  list.replaceChildren(
-    ...getUpcomingPhases(date).map((phase) => {
-      const item = document.createElement("li");
-      const icon = document.createElement("canvas");
-      icon.width = 88;
-      icon.height = 88;
-      icon.setAttribute("aria-hidden", "true");
-      drawMoon(icon, phase.fraction === 0 ? 0.001 : phase.fraction);
-
-      const text = document.createElement("div");
-      const title = document.createElement("strong");
-      title.textContent = phase.name;
-      const when = document.createElement("span");
-      when.textContent = dateFormatter.format(phase.date);
-      text.append(title, when);
-
-      item.append(icon, text);
-      return item;
-    })
-  );
+  grid.querySelectorAll(".reveal").forEach((el) => revealObserver.observe(el));
 }
 
-function setupDatePicker() {
-  const input = document.getElementById("date-input");
-  const todayBtn = document.getElementById("today-btn");
-  const form = document.getElementById("date-form");
-
-  input.value = toInputValue(new Date());
-
-  input.addEventListener("change", () => {
-    if (!input.value) return;
-    const [year, month, day] = input.value.split("-").map(Number);
-    const picked = new Date(year, month - 1, day, 21);
-    const isToday = input.value === toInputValue(new Date());
-    render(isToday ? new Date() : picked, isToday);
+document.querySelectorAll(".filter").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter").forEach((b) => {
+      const active = b === btn;
+      b.classList.toggle("is-active", active);
+      b.setAttribute("aria-pressed", String(active));
+    });
+    renderProducts(btn.dataset.filter);
   });
+});
 
-  todayBtn.addEventListener("click", () => {
-    input.value = toInputValue(new Date());
-    render(new Date(), true);
-  });
+// Quick view dialog
+const dialog = document.getElementById("quick-view");
+const qv = {
+  image: document.getElementById("qv-image"),
+  category: document.getElementById("qv-category"),
+  title: document.getElementById("qv-title"),
+  price: document.getElementById("qv-price"),
+  desc: document.getElementById("qv-desc"),
+  sizes: document.getElementById("qv-sizes"),
+  status: document.getElementById("qv-status"),
+};
 
-  form.addEventListener("submit", (event) => event.preventDefault());
+function openQuickView(product) {
+  qv.image.src = product.image;
+  qv.image.alt = product.alt;
+  qv.category.textContent = product.category === "tops" ? "Tops" : "Bottoms";
+  qv.title.textContent = product.name;
+  qv.price.textContent = currency.format(product.price);
+  qv.desc.textContent = product.description;
+  qv.status.textContent = "Select a size to check availability.";
+  qv.sizes.innerHTML = product.sizes
+    .map((s) => `<button type="button" aria-pressed="false">${s}</button>`)
+    .join("");
+  dialog.showModal();
 }
 
-function setupStarfield() {
-  const canvas = document.getElementById("stars");
-  const ctx = canvas.getContext("2d");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let stars = [];
+qv.sizes.addEventListener("click", (event) => {
+  const btn = event.target.closest("button");
+  if (!btn) return;
+  qv.sizes
+    .querySelectorAll("button")
+    .forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  qv.status.textContent = `Size ${btn.textContent} is available in Drop 01.`;
+});
 
-  function resize() {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = window.innerHeight * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+grid.addEventListener("click", (event) => {
+  const btn = event.target.closest("button[data-id]");
+  if (!btn) return;
+  const product = products.find((p) => p.id === btn.dataset.id);
+  if (product) openQuickView(product);
+});
 
-    const count = Math.round((window.innerWidth * window.innerHeight) / 4000);
-    stars = Array.from({ length: count }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 1.2 + 0.2,
-      phase: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.002 + 0.0005,
-    }));
-  }
+document.getElementById("qv-close").addEventListener("click", () => dialog.close());
+dialog.addEventListener("click", (event) => {
+  if (event.target === dialog) dialog.close();
+});
 
-  function draw(time) {
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    for (const star of stars) {
-      const alpha = reduceMotion ? 0.7 : 0.35 + 0.55 * Math.abs(Math.sin(star.phase + time * star.speed));
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      ctx.fill();
-    }
-    if (!reduceMotion) requestAnimationFrame(draw);
-  }
+// Next drop countdown: drops go live on the next full moon
+const SYNODIC_MONTH_MS = 29.530588853 * 86400000;
+const KNOWN_FULL_MOON = Date.UTC(2000, 0, 21, 4, 40);
 
-  resize();
-  window.addEventListener("resize", () => {
-    resize();
-    if (reduceMotion) draw(0);
-  });
-  reduceMotion ? draw(0) : requestAnimationFrame(draw);
+function nextFullMoon(from = Date.now()) {
+  const cycles = Math.ceil((from - KNOWN_FULL_MOON) / SYNODIC_MONTH_MS);
+  return new Date(KNOWN_FULL_MOON + cycles * SYNODIC_MONTH_MS);
 }
 
-render(new Date(), true);
-setupDatePicker();
-setupStarfield();
+const dropDate = nextFullMoon();
+document.getElementById("drop-date").textContent = `Full moon \u2014 ${dropDate.toLocaleDateString(
+  undefined,
+  { weekday: "long", month: "long", day: "numeric" }
+)}`;
+
+const cd = {
+  days: document.getElementById("cd-days"),
+  hours: document.getElementById("cd-hours"),
+  mins: document.getElementById("cd-mins"),
+  secs: document.getElementById("cd-secs"),
+};
+const pad = (n) => String(n).padStart(2, "0");
+
+function tick() {
+  const diff = Math.max(0, dropDate - Date.now());
+  const s = Math.floor(diff / 1000);
+  cd.days.textContent = pad(Math.floor(s / 86400));
+  cd.hours.textContent = pad(Math.floor((s % 86400) / 3600));
+  cd.mins.textContent = pad(Math.floor((s % 3600) / 60));
+  cd.secs.textContent = pad(s % 60);
+}
+tick();
+setInterval(tick, 1000);
+
+// Reveal on scroll
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.15 }
+);
+
+document.getElementById("year").textContent = new Date().getFullYear();
+renderProducts();
